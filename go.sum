@@ -1,0 +1,6 @@
+github.com/deckarep/golang-set/v2 v2.1.0 h1:g47V4Or+DUdzbs8FxCCmgb6VYd+ptPAngjM6dtGktsI=
+github.com/deckarep/golang-set/v2 v2.1.0/go.mod h1:VAky9rY/yGXJOLEDv3OMci+7wtDpOF4IN+y82NBOac4=
+github.com/halimath/expect-go v0.0.0-20220913172635-5e8906ded1a7 h1:zcIoHq9rhYmjDzcposR+gWJgvEqzB9TenyAyFx5zws8=
+github.com/halimath/expect-go v0.0.0-20220913172635-5e8906ded1a7/go.mod h1:cdpANndVdCauUz1/Qn0774a3suiTySC6Ft92oHtiDYU=
+github.com/halimath/fsmock v0.0.0-20221107190951-a0a057f8d611 h1:Tace0XE7MsrLp4WgTXOZnvjq5d3f4pknR+9cP3GxL5k=
+github.com/halimath/fsmock v0.0.0-20221107190951-a0a057f8d611/go.mod h1:WK8WbrLIp+0zRMMdyLK/CnsYstnxnv0aHMoQBsuWnrc=
