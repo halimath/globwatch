@@ -71,25 +71,65 @@ available via the `ErrorsChan` method.
 ## Pattern format
 
 The pattern format used by `globwatch` works similar to the 
-[pattern format of `.gitignore`](https://git-scm.com/docs/gitignore). 
+[pattern format of `.gitignore`](https://git-scm.com/docs/gitignore). It is
+completely compatible with the pattern format used by `os.Glob` or `fs.Glob`
+and extends it.
 
-The format is defined as
+The format is specified as the following EBNF:
 
 ```ebnf
 pattern = term, { '/', term };
 
-term    = '**' | name;
-name    = { char | '*' | '?' };
-char    = (* <any character except '/', '*' or '?'> *)
+term        = '**' | name;
+name        = { charSpecial | group | escapedChar | '*' | '?' };
+charSpecial = (* any unicode rune except '/', '*', '?', '[' and '\' *);
+char        = (* any unicode rune *);
+escapedChar = '\\', char;
+group       = '[', [ '^' ] { escapedChar | groupChar | range } ']';
+groupChar   = (* any unicode rune except '-' and ']' *);
+range       = ( groupChar | escapedChar ), '-', (groupChar | escapedChar);
 ```
 
-The format uses the following operators
+The format operators have the following meaning:
 
-Operator | Description
--- | --
-`*` | Any number of characters (incl. zero) excluding the directory separator `/`
-`?` | A single character excluding the directory separator `/`
-`**` | Any number of "directories" (incl. zero). The `**` operator consumes whole directories up to the next `/`
+* any character (rune) matches the exactly this rune - with the following
+  exceptions
+* `/` works as a directory separator. It matches directory boundarys of the
+  underlying system independently of the separator char used by the OS.
+* `?` matches exactly one non-separator char
+* `*` matches any number of non-separator chars - including zero
+* `\` escapes a character's special meaning allowing `*` and `?` to be used
+  as regular characters.
+* `**` matches any number of nested directories. If anything is matched it
+  always extends until a separator or the end of the name.
+* Groups can be defined using the `[` and `]` characters. Inside a group the
+  special meaning of the characters mentioned before is disabled but the
+  following rules apply
+    * any character used as part of the group acts as a choice to pick from
+    * if the group's first character is a `^` the whole group is negated
+    * a range can be defined using `-` matching any rune between low and high
+      inclusive
+    * Multiple ranges can be given. Ranges can be combined with choices.
+    * The meaning of `-` and `]` can be escacped using `\`
+
+# Performance
+
+`globwatch` separates pattern parsing and matching. This can create a 
+performance benefit when applied repeatedly. When reusing a precompiled pattern
+to match filenames `globwatch` outperforms `filepath.Match` with both simple
+and complex patterns. When not reusing the parsed pattern, `filepath` works
+much faster (but lacks the additional features).
+
+Test | Execution time `[ns/op]` | Memory usage `[B/op]` | Allocations per op
+-- | --: | --: | --:
+`filepath` simple pattern                        |   15.5 | 0    | 0
+`globwatch` simple pattern (reuse)               |    3.9 | 0    | 0
+`globwatch` simple pattern (noreuse)             |  495.0 | 1112 | 5
+`filepath` complex pattern                       |  226.2 |    0 | 0
+`globwatch` complex pattern (reuse)              |  108.1 |    0 | 0
+`globwatch` complex pattern (noreuse)            | 1103.0 | 2280 | 8
+`globwatch` directory wildcard pattern (reuse)   |  111.7 |    0 | 0
+`globwatch` directory wildcard pattern (noreuse) | 1229.0 | 2280 | 8
 
 # License
 

@@ -41,6 +41,10 @@ func TestWatcher_detecChanges(t *testing.T) {
 
 	watcher.detectChanges()
 
+	fsys.Rm("internal")
+
+	watcher.detectChanges()
+
 	close(watcher.c)
 
 	evts := make([]Event, 0, 20)
@@ -61,5 +65,22 @@ func TestWatcher_detecChanges(t *testing.T) {
 			Type: Modified,
 			Path: "internal/tool_test.go",
 		},
+		{
+			Type: Deleted,
+			Path: "internal/tool_test.go",
+		},
 	}))
+}
+
+func TestEventType_String(t *testing.T) {
+	tests := map[EventType]string{
+		Created:       "created",
+		Deleted:       "deleted",
+		Modified:      "modified",
+		EventType(99): "unknown",
+	}
+
+	for in, want := range tests {
+		ExpectThat(t, in.String()).Is(Equal(want))
+	}
 }

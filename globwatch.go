@@ -36,11 +36,11 @@ const (
 func (t EventType) String() string {
 	switch t {
 	case Created:
-		return "Created"
+		return "created"
 	case Modified:
-		return "Modified"
+		return "modified"
 	case Deleted:
-		return "Deleted"
+		return "deleted"
 	default:
 		return "unknown"
 	}
